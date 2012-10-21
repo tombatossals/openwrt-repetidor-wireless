@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Configurar un router OpenWRT en modo repetidor Wireless
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <!-- Le styles -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <style type="text/css">
+            body { font-size: 1em; padding-top: 60px; padding-bottom: 40px; } p {
+            text-align: justify; }
+        </style>
+        <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+            <script src="//html5shim.googlecode.com/svn/trunk/html5.js">
+            </script>
+        <![endif]-->
+        <!-- Le fav and touch icons -->
+        <link rel="shortcut icon" href="images/favicon.ico">
+        <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+    </head>
+    
+    <body>
+        <div class="navbar navbar-fixed-top navbar-inverse">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="nav-collapse">
+                        <a style="color: white; font-size: 1.6em; font-weight: bold;" class="brand"
+                        href="index.html">OpenWRT en modo repetidor Wireless</a>
+                        <ul class="nav pull-right">
+                            <li>
+                                <a href="http://guifi.net">guifi.net</a>
+                            </li>
+                            <li>
+                                <a href="http://castello.guifi.net">guifi.net Castelló</a>
+                            </li>
+                            <li>
+                                <a href="http://assix.org">Asociación ASSIX</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!--/.nav-collapse -->
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="span12">
+                    <section class="row-fluid">
+                        <div class="span8">
+                            <article>
+                                <header>
+                                    <hgroup>
+                                        <h1>
+                                            Motivación
+                                        </h1>
+                                    </hgroup>
+                                </header>
+                                <p>
+                                    Tenemos en casa una cobertura inalámbrica muy maja que nos da acceso a guifi.net (o a internet), pero siempre hay algún recoveco de la casa donde la señal Wifi llega muy baja. Una habitación alejada, la buhardilla, la caseta del perro, etc. ¿Sería posible hacer llegar allí la cobertura inalámbrica sin tener que tirar cable? <strong>Sí que se puede</strong>.
+                                </p>
+                            </article>
+                            <article>
+                                <h2>
+                                    Requisitos: OpenWRT
+                                </h2>
+                                <a href="http://www.amazon.es/Tp-Link-TL-WR740N-Router-inal%C3%A1mbrico-antena-puertos/dp/B003SE2Q0M/"><img style="margin-left: 1em;" class="pull-right thumbnail" src="img/wr740n.200.jpg" /></a>
+                                <p>
+                                    El tutorial se basa en la configuración personal realizada sobre un router TP-LINK WR740N (unos 15 euros), al que le hemos puesto el último firmware OpenWRT. Tal vez funcione con otros firmwares y con otro hardware, pero este tutorial no los cubre.
+                                </p>
+                                <p>
+                                El firmware OpenWRT utilizado es la ultimísima versión de OpenWRT, <strong>attitude adjustment</strong>, actualmente en fase beta pero que funciona perfectamente.
+                                </p>
+                                <p>
+                                A modo de referencia, decir que el firmware OpenWRT que tenemos que flashear es el que corresponde a la arquitectura <strong>ar71xx</strong>, de la versión correspondiente a nuestro router WR740N (normalmente la v4 a no ser que el router sea muy antiguo), para particiones <strong>squashfs</strong>, y si vamos a flashearlo de cero, que es lo que os recomiendo, la versión <strong>factory</strong>. Si cumplís esos requisitos, el archivo que deberíais bajaros se parecera a éste: <a href="http://downloads.openwrt.org/attitude_adjustment/12.09-beta/ar71xx/generic/openwrt-ar71xx-generic-tl-wr740n-v4-squashfs-factory.bin">http://downloads.openwrt.org/attitude_adjustment/12.09-beta/ar71xx/generic/openwrt-ar71xx-generic-tl-wr740n-v4-squashfs-factory.bin</a>
+                                </p>
+                                <p>
+                                <h2>Lo que vamos a conseguir</h2>
+                                <img style="margin-left: 1em;" class="pull-right thumbnail" src="img/home.300.jpg" />
+                                <p>Al rouer le vamos a aplicar una configuración en la cual, sin enlazarlo por cable a la red casera, únicamente por wifi, se conectará como cliente a nuestra red wifi principal, y repetirá esa señal a otras ubicaciones de la casa donde no llegaba. Es decir, modo repetidor. El servidor DHCP seguirá estando en el router principal, pero el SSID del nuevo router será diferente.</p>
+                                <h2>La receta</h2>
+                                <hr />
+                                <footer>
+                                    <p class="muted">
+                                        Página creada por
+                                        <a href="http://profiles.google.com/david.rubert">+David Rubert</a>
+                                        el
+                                        <strong>
+                                            21-Oct-2012
+                                        </strong>
+                                    </p>
+                                </footer>
+                            </article>
+                        </div>
+                        <aside class="span4 well">
+                            <ul class="nav nav-list">
+                                <li class="nav-header">
+                                    Enlaces de interés
+                                </li>
+                                <li class="active">
+                                    <a href="index.html">Esta página</a>
+                                </li>
+                                <li>
+                                    <a href="https://forum.openwrt.org/viewtopic.php?pid=179312">Info en el foro de OpenWRT</a>
+                                </li>
+                                <li>
+                                    <a href="">Info en el wiki de OpenWRT</a>
+                                </li>
+                            </ul>
+                        </aside>
+                        <aside class="span4">
+                            <a class="thumbnail" href="http://guifi.net/sanjose"><img src="img/map.png" /></a>
+                        </aside>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </body>
+
+</html>
