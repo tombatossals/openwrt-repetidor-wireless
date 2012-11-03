@@ -84,9 +84,90 @@
                                 </p>
                                 <p>
                                 <h2>Lo que vamos a conseguir</h2>
-                                <img style="margin-left: 1em;" class="pull-right thumbnail" src="img/home.300.jpg" />
-                                <p>Al rouer le vamos a aplicar una configuración en la cual, sin enlazarlo por cable a la red casera, únicamente por wifi, se conectará como cliente a nuestra red wifi principal, y repetirá esa señal a otras ubicaciones de la casa donde no llegaba. Es decir, modo repetidor. El servidor DHCP seguirá estando en el router principal, pero el SSID del nuevo router será diferente.</p>
+                                <p>Al router le vamos a aplicar una configuración en la cual, sin tener que enlazarlo por cable a la red casera (únicamente por wifi), se conectará como cliente a nuestra red wifi principal, y repetirá esa señal a otras ubicaciones de la casa donde no llegaba. Es decir, modo repetidor. El servidor DHCP seguirá estando en el router principal, pero el SSID del nuevo router será diferente.</p>
                                 <h2>La receta</h2>
+                                <p>Partimos de la base que ya tenemos el router configurado a la última versión de <strong>OpenWRT</strong>. Lo primero que haremos será entrar al router y enlazarlo como cliente a nuestra red Wifi principal. Es conveniente también cambiarle la constraseña de root. Os pongo unos pantallazos de guía ya que todo esto se puede realizar desde el interfaz web.</p>
+                                <p>Sin explicarlo muy en detalle, vamos a la seccion <span class="label label-success">Network</span>, <span class="label label-info">Wifi</span>, y para nuestra <strong>radio0</strong> hacemos un scan para ver las señales disponibles. Cuando veamos la señal de nuestra red pulsamos el botón <span class="label label-important">Join Network</span>, ponemos la contraseña de acceso al wifi casero y le damos a guardar. Ya tenemos el router conectado como cliente a nuestra red.</p>
+                                <p>Adicionalmente (última captura), yo configuraría la red local (los 4 puertos ethernet del router) con un segmento de red diferente del de la red principal, para que no entre en conflicto. Por ejemplo, si nuestra red principal es la <span label="label">192.168.1.0/24</span> y el router tiene la IP <span class="label label-warning">192.168.1.1</span>, a nuestro router repetidor lo pondremos en la red <span class="label">192.168.2.0/24</span>, con la IP <span class="label label-warning">192.168.2.1</span>. Esa IP podremos accederla si conectamos un cable al switch de 4 puertos del router.</p>
+                                <ul class="thumbnails">
+                                    <li><a class="thumbnail" href="img/openwrt01.png"><img src="img/openwrt01.140.png"></a></li>
+                                    <li><a class="thumbnail" href="img/openwrt02.png"><img src="img/openwrt02.140.png"></a></li>
+                                    <li><a class="thumbnail" href="img/openwrt03.png"><img src="img/openwrt03.140.png"></a></li>
+                                    <li><a class="thumbnail" href="img/openwrt04.png"><img src="img/openwrt04.140.png"></a></li>
+                                    <li><a class="thumbnail" href="img/openwrt05.png"><img src="img/openwrt05.140.png"></a></li>
+                                </ul>
+                                <p>Seguidamente, entramos al router por SSH e instalamos el paquete <strong>relayd</strong>:</p>
+                                <pre>
+<strong>ssh root@192.168.1.1</strong>
+root@192.168.1.1's password: 
+
+BusyBox v1.19.4 (2012-08-19 15:43:58 UTC) built-in shell (ash)
+Enter 'help' for a list of built-in commands.
+
+  _______                     ________        __
+ |       |.-----.-----.-----.|  |  |  |.----.|  |_
+ |   -   ||  _  |  -__|     ||  |  |  ||   _||   _|
+ |_______||   __|_____|__|__||________||__|  |____|
+          |__| W I R E L E S S   F R E E D O M
+ -----------------------------------------------------
+ ATTITUDE ADJUSTMENT (Bleeding Edge, r33210)
+ -----------------------------------------------------
+  * 1/4 oz Vodka      Pour all ingredients into mixing
+  * 1/4 oz Gin        tin with ice, strain into glass.
+  * 1/4 oz Amaretto
+  * 1/4 oz Triple sec
+  * 1/4 oz Peach schnapps
+  * 1/4 oz Sour mix
+  * 1 splash Cranberry juice
+ -----------------------------------------------------
+root@OpenWrt:~# <strong>opkg update</strong>
+Downloading http://downloads.openwrt.org/snapshots/trunk/ar71xx/packages/Packages.gz.
+Inflating http://downloads.openwrt.org/snapshots/trunk/ar71xx/packages/Packages.gz.
+Updated list of available packages in /var/opkg-lists/attitude_adjustment.
+root@OpenWrt:~# <strong>opkg install relayd</strong>
+Installing relayd (2011-10-24-4e8f1fa4ca2b176500362843a9e57ea5abd4b7a3) to root...
+Downloading http://downloads.openwrt.org/snapshots/trunk/ar71xx/packages/relayd_2011-10-24-4e8f1fa4ca2b176500362843a9e57ea5abd4b7a3_ar71xx.ipk.
+Configuring relayd.
+root@OpenWrt:~#</pre>
+                                <p>Una vez instalado, lo habilitamos en el arranque:</p>
+                                <pre>
+root@OpenWrt:~# <strong>/etc/init.d/relayd enable</strong></pre>
+                                <p>Ahora viene el paso más delicado, y que deberemos hacer en línea de comandos. Estableceremos un doble modo de funcionamiento inalámbrico, uno como cliente a nuestro AP (ya está conigurado), y otro como AP para los clientes de este nuevo router. Para ello, utilizaremos el DHCP del router principal, de manera que las IP's que asignará nuestro nuevo router serna de la misma subred que el router principal.</p>
+                                <p>Veamos cómo hacerlo.</p>
+                                <h3>1. Editamos el archivo /etc/config/wireless</h3>
+                                <p>Este archivo lo tenemos casi configurado con la config inalámbrica en modo cliente que hemos aplicado vía web, sólo nos falta añadir al final del archivo unas líneas que indiquen que el router también funciona en modo wifi AP:</p>
+                                <pre>
+config wifi-iface
+        option device 'radio0'
+        option mode 'ap'
+        option ssid 'nuevo-router-casero'
+        option encryption 'psk2'
+        option key 'micontraseñamuysecreta'
+        option network 'lan'
+</pre>
+                                <p>En este caso hemos creado una nueva sección de wifi en modo AP, donde los clientes deberán conectar con seguiridad WPA2/PSK, cuyo SSID sera <strong>nuevo-router-casero</strong>, y la contraseña será <strong>micontraseñamuysecreta</strong>. Todo esto último se puede cambiar al gusto.</p>
+                                <h3>2. Editamos el archivo /etc/config/network</h3>
+                                <p>En este archivo debemos añadir la configuración necesaria para que se haga relay de tráfico de un interfaz a otro. Añadimos al final estas líneas:</p>
+                                <pre>
+config interface 'stabridge'
+        option 'proto' 'relay'
+        option 'network' 'lan wwan'
+</pre>
+                                <h3>3. Editamos el archivo /etc/config/dchp</h3>
+                                <p>El dhcp que vamos a utilizar es el del router principal, así que en este archivo lo que haremos será deshabilitarlo todo. El archivo se ha de quedar así:</p>
+                                <pre>
+config dhcp lan
+        option interface        lan
+        option start    100
+        option limit    150
+        option leasetime        12h
+        option ignore 1
+
+config dhcp wan
+        option interface        wan
+        option ignore   1
+</pre>
+                                <p>Y ya está, si todo ha ido bien reiniciamos el router, lo ponemos en la ubicación que habíamos pensado y todos los clientes que conecten al nuevo SSID tendrán conexión con mucha mejor señal que antes.</p>
                                 <hr />
                                 <footer>
                                     <p class="muted">
@@ -117,7 +198,7 @@
                             </ul>
                         </aside>
                         <aside class="span4">
-                            <a class="thumbnail" href="http://guifi.net/sanjose"><img src="img/map.png" /></a>
+                            <img style="margin-left: 1em;" class="pull-right thumbnail" src="img/home.jpg" />
                         </aside>
                     </section>
                 </div>
