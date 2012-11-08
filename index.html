@@ -132,7 +132,7 @@ root@OpenWrt:~#</pre>
                                 <p>Una vez instalado, lo habilitamos en el arranque:</p>
                                 <pre>
 root@OpenWrt:~# <strong>/etc/init.d/relayd enable</strong></pre>
-                                <p>Ahora viene el paso más delicado, y que deberemos hacer en línea de comandos. Estableceremos un doble modo de funcionamiento inalámbrico, uno como cliente a nuestro AP (ya está conigurado), y otro como AP para los clientes de este nuevo router. Para ello, utilizaremos el DHCP del router principal, de manera que las IP's que asignará nuestro nuevo router serna de la misma subred que el router principal.</p>
+                                <p>Ahora viene el paso más delicado, y que deberemos hacer en línea de comandos. Estableceremos un doble modo de funcionamiento inalámbrico, uno como cliente a nuestro AP (ya está configurado), y otro como AP para los clientes de este nuevo router. Para ello, utilizaremos el DHCP del router principal, de manera que las IP's que asignará nuestro nuevo router serán de la misma subred que el router principal.</p>
                                 <p>Veamos cómo hacerlo.</p>
                                 <h3>1. Editamos el archivo /etc/config/wireless</h3>
                                 <p>Este archivo lo tenemos casi configurado con la config inalámbrica en modo cliente que hemos aplicado vía web, sólo nos falta añadir al final del archivo unas líneas que indiquen que el router también funciona en modo wifi AP:</p>
@@ -208,6 +208,9 @@ config dhcp wan
                                 </li>
                                 <li>
                                     <a href="http://wiki.openwrt.org/doc/recipes/bridgedclient">Info en el wiki de OpenWRT</a>
+                                </li>
+                                <li>
+                                    <a href="https://github.com/tombatossals/openwrt-repetidor-wireless">Repositorio GIT de esta documentación.</a>
                                 </li>
                             </ul>
                         </aside>
